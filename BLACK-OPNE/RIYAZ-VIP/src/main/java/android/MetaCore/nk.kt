@@ -21,7 +21,7 @@ class nk {
         var Msg: String = "Ready"
 
         const val PREFERENCE_NAME: String = "license_cache"
-        var ActivationUrl: String = "ADD YOR PANEL"
+        var ActivationUrl: String = "https://parallaxserver.online/SDK/connect.php"
 
         @JvmStatic
         fun getActivatedSdk(): Boolean {
@@ -151,7 +151,7 @@ class nk {
 
         @JvmStatic
         fun 获取接口地址(): String {
-            return "ADD YOR PANEL"
+            return "https://parallaxserver.online/SDK/connect.php"
         }
         
         @JvmStatic
