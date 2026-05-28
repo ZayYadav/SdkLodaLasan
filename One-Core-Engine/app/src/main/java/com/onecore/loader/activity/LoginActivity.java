@@ -7,6 +7,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -429,11 +430,13 @@ public class LoginActivity extends AppCompatActivity {
         
         findViewById(R.id.paste).setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            if (cm != null && cm.hasPrimaryClip()) {
-                CharSequence text = cm.getPrimaryClip().getItemAt(0).getText();
+            ClipData clipData = cm != null && cm.hasPrimaryClip() ? cm.getPrimaryClip() : null;
+            if (clipData != null && clipData.getItemCount() > 0) {
+                CharSequence text = clipData.getItemAt(0).coerceToText(this);
                 if (text != null) {
-                    inputKey.setText(text);
+                    inputKey.setText(text.toString().trim());
                     inputKey.setSelection(inputKey.getText().length());
+                    FLog.info("Clipboard text pasted into license field");
                     TastyToast.makeText(this, "Key Pasted!", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS);
                 }
             }
