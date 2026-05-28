@@ -58,6 +58,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     Log.d("Error", errorMessage.toString());
     Log.d("Software", softwareInfo.toString());
     Log.d("Date", dateInfo.toString());
+    FLog.error("Crash captured\n" + dateInfo + softwareInfo + errorMessage);
 
     // Create an intent for the crash activity
     Intent intent = new Intent(context, CrashActivity.class);

@@ -189,6 +189,6 @@ Java_com_onecore_loader_floating_Overlay_getReady(JNIEnv *, jobject) {
 
 extern "C" JNIEXPORT jstring JNICALL 
 Java_com_onecore_loader_BoxApplication_BoxApp(JNIEnv* env, jobject thiz) {
-    return env->NewStringUTF(OBFUSCATE("ONE-CORE-KEY"));
+    return env->NewStringUTF(OBFUSCATE("PARALLAX-AE45ACDC-499"));
 }
 
