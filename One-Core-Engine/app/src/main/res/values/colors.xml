@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF17202E</color>
+    <color name="colorAccent">#58588D</color>
+    <color name="white">#FFFFFF</color>
+    <color name="background">#000000</color>
+    <color name="blue">#3A6FBD</color>
+    <color name="blue2">#29ACE2</color>
+    <color name="red">#FF0000</color>
+    <color name="whitegelap">#9C9999</color>
+    <color name="grey">#535353</color>
+    <color name="card_background">#60464646</color>
+    <color name="black">#101010</color>
+    <color name="bule3">#198DFA</color>
+    <!-- Button start stop -->
+    <color name="green">#2ebc86</color>
+    <color name="startbtn">#f8465c</color>
+    <color name="stopbtn">#2ebc86</color>
+    <color name="button">#FFFF445C</color>
+    
+    
+
+</resources>

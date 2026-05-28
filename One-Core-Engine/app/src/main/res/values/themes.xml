@@ -1,0 +1,58 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base Material3 theme -->
+    <style name="AnyTimeCore.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">#FF17202E</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="dialogCornerRadius">28dp</item>
+    </style>
+
+    <!-- Custom outlined button -->
+    <style name="CustomOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">#000000</item>
+    </style>
+
+    <!-- Application theme inheriting from base theme -->
+    <style name="AppTheme" parent="AnyTimeCore.AppTheme" />
+
+    <!-- Custom TabLayout Text Style -->
+    <style name="TabLayout.TextStyle" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:fontFamily">@font/acme</item>
+    </style>
+
+    <!-- Rounded ImageView style -->
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Secondary theme (AppCompat-based) -->
+    <style name="GroupTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">#FF17202E</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- PKSwitch Styles -->
+    <style name="PKSwitch" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">#FFFF445C</item>
+        <item name="colorSwitchThumbNormal">#FFFFFF</item>
+        <item name="android:colorForeground">#FFFFFF</item>
+    </style>
+
+    <style name="PKSwitch2" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">#FFFF445C</item>
+        <item name="colorSwitchThumbNormal">#FFFFFF</item>
+        <item name="android:colorForeground">#FFFFFF</item>
+    </style>
+
+</resources>

@@ -1,0 +1,3 @@
+include ':RIYAZ-VIP'
+
+rootProject.name = "RIYAZ BBOX"

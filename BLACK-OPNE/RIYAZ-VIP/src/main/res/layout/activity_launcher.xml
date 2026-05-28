@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_premium_splash">
+
+    <!-- Glass overlay for extra depth -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_splash_glass" />
+
+    <!-- Centered content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <!-- App Icon with gold glow -->
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:scaleType="centerInside"
+            android:background="@drawable/bg_icon_glow"
+            android:padding="8dp"
+            android:elevation="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:shadowColor="#80FFD700"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Premium Loading WebView (height increased for better visibility) -->
+        <android.webkit.WebView
+            android:id="@+id/web_loading"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@android:color/transparent"
+            android:layerType="hardware" />
+
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:background="@drawable/gradient_black_yellow"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layoutDirection="locale"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true">
+        
+        <FrameLayout
+            android:id="@+id/particles_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+            
+    </androidx.core.widget.NestedScrollView>
+    
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+        <!-- Logo Section -->
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            
+            <FrameLayout
+                android:id="@+id/logoAnimator"
+                android:background="@drawable/logo_premium_border"
+                android:layout_width="120.0dip"
+                android:layout_height="120.0dip"
+                android:elevation="20.0dip">
+                
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="100.0dip"
+                    android:layout_height="100.0dip"
+                    android:src="@drawable/ic_launcher"
+                    android:contentDescription="VIP LOGO"
+                    android:alpha="0.95" />
+                    
+            </FrameLayout>
+            
+            <!-- Title - No Gap -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10.0dip">
+                
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFD700"
+                    android:id="@+id/textVip1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ONECORE "
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.05" />
+                    
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFA500"
+                    android:id="@+id/textVip2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENGINE LOADER"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.05" />
+                    
+            </LinearLayout>
+            
+            <!-- Subtitle - No Gap -->
+            <TextView
+                android:textSize="14.0sp"
+                android:textColor="#FFFFFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Premium Access Loader"
+                android:fontFamily="@font/montserratsemibold"
+                android:letterSpacing="0.08" />
+                
+        </LinearLayout>
+        
+        <!-- Login Form Section - No Gaps -->
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20.0dip">
+            
+            <!-- Label - No Gap -->
+            <TextView
+                android:textSize="14.0sp"
+                android:textColor="#FFD700"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PLEASE ENTER YOUR LICENSE KEY 🗝️"
+                android:fontFamily="@font/montserratsemibold"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="10.0dip" />
+            
+            <!-- Password Input Field -->
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/premium_input_border"
+                android:layout_width="fill_parent"
+                android:layout_height="50.0dip"
+                android:layout_marginStart="30.0dip"
+                android:layout_marginEnd="30.0dip"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp">
+                
+                <ImageView
+                    android:id="@+id/vis_pwd"
+                    android:visibility="visible"
+                    android:layout_width="22.0dip"
+                    android:layout_height="22.0dip"
+                    android:src="@drawable/baseline_visibility_off_24"
+                    android:tint="#FFFFFF" />
+                    
+                <ImageView
+                    android:id="@+id/show_pwd"
+                    android:visibility="gone"
+                    android:layout_width="22.0dip"
+                    android:layout_height="22.0dip"
+                    android:src="@drawable/baseline_remove_red_eye_24"
+                    android:tint="#FFFFFF" />
+                    
+                <EditText
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#FFFFFF"
+                    android:gravity="center"
+                    android:id="@+id/textUsername"
+                    android:background="@drawable/transparent_code"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:ems="50"
+                    android:inputType="textPassword"
+                    android:textCursorDrawable="@drawable/premium_cursor"
+                    android:fontFamily="@font/poppinsregular"
+                    android:hint="ENTER KEY HERE ☺️"
+                    android:textSize="14sp" />
+                    
+                <ImageView
+                    android:id="@+id/paste"
+                    android:layout_width="22.0dip"
+                    android:layout_height="22.0dip"
+                    android:src="@drawable/ic_paste"
+                    android:tint="#FFFFFF" />
+                    
+            </LinearLayout>
+            
+            <!-- Login Button - No Gap -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/init"
+                android:layout_width="fill_parent"
+                android:layout_height="45.0dip"
+                android:layout_marginTop="15.0dip"
+                android:layout_marginStart="30.0dip"
+                android:layout_marginEnd="30.0dip"
+                app:cardBackgroundColor="#FFD700"
+                app:cardCornerRadius="22.0dip"
+                app:cardElevation="6dp">
+                
+                <TextView
+                    android:textSize="18.0sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:gravity="center"
+                    android:id="@+id/btnSignIn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:text="LOGIN HERE"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.1" />
+                    
+            </androidx.cardview.widget.CardView>
+            
+            <!-- Help Text - No Gap -->
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12.0dip">
+                
+                <TextView
+                    android:textSize="12.0sp"
+                    android:textColor="#AAFFD700"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Don't have key?"
+                    android:fontFamily="@font/poppinsregular" />
+                    
+                <TextView
+                    android:textSize="12.0sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFD700"
+                    android:gravity="center"
+                    android:id="@+id/telegram"
+                    android:clickable="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CLICK HERE"
+                    android:fontFamily="@font/poppinsregular"
+                    android:layout_marginStart="5.0dip" />
+                    
+            </LinearLayout>
+            
+        </LinearLayout>
+        
+    </LinearLayout>
+    
+</RelativeLayout>

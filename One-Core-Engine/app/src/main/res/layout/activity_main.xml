@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:background="#ff0c0f15"
+    android:padding="7.0dip"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <!-- Settings Icon -->
+    <ImageView
+        android:id="@+id/btn_settings"
+        android:layout_width="80.0dip"
+        android:layout_height="80.0dip"
+        android:src="@drawable/ic_launcher"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/ios_icon_bg"
+        android:padding="8dp"/>
+
+
+    <!-- Premium Header with Timer -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/ios_header_bg"
+        android:padding="8.0dip"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:textSize="20.0sp"
+            android:textColor="#ffffd700"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:id="@+id/PremiumFileManager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Premium Subscription Ends On"
+            android:fontFamily="@font/acme"
+            android:letterSpacing="0.05"
+            android:shadowColor="#33FFD700"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3"/>
+
+        <!-- iOS Style Timer - Clean Design -->
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textColor="#ffffd700"
+                    android:gravity="center"
+                    android:id="@+id/tv_d"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="00"
+                    android:fontFamily="@font/acme"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <TextView
+                    android:textSize="10.0sp"
+                    android:textColor="#ffb0bec5"
+                    android:gravity="center"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DAY"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/acme"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:textSize="28.0sp"
+                android:textStyle="bold"
+                android:textColor="#ffffd700"
+                android:padding="2.0dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:fontFamily="@font/acme"/>
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textColor="#ffffd700"
+                    android:gravity="center"
+                    android:id="@+id/tv_h"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="00"
+                    android:fontFamily="@font/acme"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <TextView
+                    android:textSize="10.0sp"
+                    android:textColor="#ffb0bec5"
+                    android:gravity="center"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="HOURS"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/acme"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:textSize="28.0sp"
+                android:textStyle="bold"
+                android:textColor="#ffffd700"
+                android:padding="2.0dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:fontFamily="@font/acme"/>
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textColor="#ffffd700"
+                    android:gravity="center"
+                    android:id="@+id/tv_m"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="00"
+                    android:fontFamily="@font/acme"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <TextView
+                    android:textSize="10.0sp"
+                    android:textColor="#ffb0bec5"
+                    android:gravity="center"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MINUTE"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/acme"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:textSize="28.0sp"
+                android:textStyle="bold"
+                android:textColor="#ffffd700"
+                android:padding="2.0dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:fontFamily="@font/acme"/>
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:textSize="28.0sp"
+                    android:textColor="#ffffd700"
+                    android:gravity="center"
+                    android:id="@+id/tv_s"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="00"
+                    android:fontFamily="@font/acme"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <TextView
+                    android:textSize="10.0sp"
+                    android:textColor="#ffb0bec5"
+                    android:gravity="center"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SECOND"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/acme"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <!-- Game Selection Section -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/ios_card_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15.0dip"
+        android:padding="12dp">
+
+        <!-- REMOVED android:checkedButton from RadioGroup -->
+        <RadioGroup
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:id="@+id/radio_group_games"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:textColor="#ffffd700"
+                android:id="@+id/radio_india"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="India"
+                android:textSize="18sp"
+                android:fontFamily="@font/acme"
+                android:layout_marginStart="10.0dip"
+                android:layout_marginEnd="10.0dip"
+                android:buttonTint="#ffffd700"
+                android:clickable="true"
+                android:focusable="true"
+                android:checked="false"/>
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <RadioButton
+                android:textSize="13.0sp"
+                android:textStyle="bold"
+                android:textColor="#ff00ffaa"
+                android:gravity="center_vertical"
+                android:id="@+id/tv_hide_esp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hide ESP While Screen Recording"
+                android:fontFamily="@font/acme"
+                android:buttonTint="#ff00ffaa"/>
+
+    <!-- Game Info Card -->
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:background="@drawable/ios_card_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10.0dip"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="65.0dip"
+                android:layout_height="65.0dip"
+                android:src="@drawable/pubg_india"
+                android:scaleType="fitCenter"/>
+
+            <TextView
+                android:textSize="16.0sp"
+                android:textColor="#ffffffff"
+                android:gravity="center"
+                android:id="@+id/IndiaName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10.0dip"
+                android:text="Battlegrounds"
+                android:fontFamily="@font/acme"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:textSize="11.0sp"
+                android:textColor="#ffb0bec5"
+                android:gravity="center"
+                android:id="@+id/IndiaVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4.0dip"
+                android:text="Version: 4.2.0"
+                android:fontFamily="@font/acme"/>
+
+            <TextView
+                android:textSize="13.0sp"
+                android:textColor="#ffffd700"
+                android:gravity="center"
+                android:id="@+id/installIndia"
+                android:background="@drawable/ios_install_button"
+                android:layout_width="100.0dip"
+                android:layout_height="34.0dip"
+                android:text="INSTALL"
+                android:fontFamily="@font/acme"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:layout_marginTop="12dp"/>
+
+        </LinearLayout>
+
+
+        </LinearLayout>
+
+        <!-- iOS Style Start Game Button -->
+        <TextView
+            android:textSize="18.0sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:id="@+id/btn_start_game"
+            android:background="@drawable/ios_start_button"
+            android:layout_width="fill_parent"
+            android:layout_height="48.0dip"
+            android:layout_marginTop="20.0dip"
+            android:text="START GAME"
+            android:fontFamily="@font/acme"
+            android:letterSpacing="0.1"/>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Announcement Section -->
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/ios_card_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10.0dip"
+        android:padding="14dp">
+
+        <TextView
+            android:textSize="18.0sp"
+            android:textStyle="bold"
+            android:textColor="#ffffd700"
+            android:gravity="center"
+            android:id="@+id/tv_announcement"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Premium Announcement"
+            android:fontFamily="@font/acme"
+            android:letterSpacing="0.08"/>
+
+        <TextView
+            android:textSize="15.0sp"
+            android:textColor="#ffffffff"
+            android:gravity="center"
+            android:id="@+id/tv_announcement2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8.0dip"
+            android:text="Play Safe Avoid Report | Kill Limit 10"
+            android:fontFamily="@font/acme"/>
+
+    </LinearLayout>
+</LinearLayout>
