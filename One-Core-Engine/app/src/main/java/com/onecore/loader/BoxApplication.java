@@ -79,6 +79,7 @@ public class BoxApplication extends Application {
     public void onCreate() {
         super.onCreate();
         gApp = this;
+        FLog.info("Debug log file: " + FLog.getDownloadLogFile().getAbsolutePath());
         BlackBoxCore.get().doCreate();
         try {
             MetaActivationManager.activateSdk(BoxApp());

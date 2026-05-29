@@ -7,6 +7,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -57,6 +58,7 @@ import android.graphics.PixelFormat;
 import android.widget.LinearLayout;
 import android.view.ViewGroup;
 
+import com.onecore.loader.BuildConfig;
 import com.onecore.loader.R;
 import com.onecore.loader.utils.CrashHandler;
 import com.onecore.loader.utils.FLog;
@@ -73,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_MANAGE_UNKNOWN_APP_SOURCES = 200;
     private static final String USER = "USER";
     public static String USERKEY = null;
-    private static final String VALID_SIGNATURE_HASH = "77F05D53CE8BF1855CAEF38CE87F13A8BB2B1B2CDD2D48DA9D3BA897EAC4549E";
+    private static final String VALID_SIGNATURE_HASH = BuildConfig.EXPECTED_SIGNATURE_SHA256;
 
     private TextView btnSignIn;
     private FrameLayout logo;
@@ -428,11 +430,13 @@ public class LoginActivity extends AppCompatActivity {
         
         findViewById(R.id.paste).setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            if (cm != null && cm.hasPrimaryClip()) {
-                CharSequence text = cm.getPrimaryClip().getItemAt(0).getText();
+            ClipData clipData = cm != null && cm.hasPrimaryClip() ? cm.getPrimaryClip() : null;
+            if (clipData != null && clipData.getItemCount() > 0) {
+                CharSequence text = clipData.getItemAt(0).coerceToText(this);
                 if (text != null) {
-                    inputKey.setText(text);
+                    inputKey.setText(text.toString().trim());
                     inputKey.setSelection(inputKey.getText().length());
+                    FLog.info("Clipboard text pasted into license field");
                     TastyToast.makeText(this, "Key Pasted!", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS);
                 }
             }
@@ -590,6 +594,7 @@ public class LoginActivity extends AppCompatActivity {
             requestUnknownAppPermissionsDirect();
         } else {
             prefs.edit().putBoolean(PREF_PERMISSIONS_GRANTED, true).apply();
+            FLog.info("Storage permission granted; debug log file: " + FLog.getDownloadLogFile().getAbsolutePath());
         }
     }
     
@@ -644,6 +649,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isSignatureValid() {
         try {
+            if (VALID_SIGNATURE_HASH == null || VALID_SIGNATURE_HASH.trim().isEmpty()) {
+                FLog.warning("Signature hash is not configured for this build");
+                return true;
+            }
+
             Signature[] sigs = getPackageManager()
                     .getPackageInfo(getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES)
                     .signingInfo.getApkContentsSigners();

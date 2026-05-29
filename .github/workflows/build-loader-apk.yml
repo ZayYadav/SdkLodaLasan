@@ -1,0 +1,136 @@
+name: Build Loader APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "BLACK-OPNE/**"
+      - "One-Core-Engine/**"
+      - ".github/workflows/build-loader-apk.yml"
+  pull_request:
+    paths:
+      - "BLACK-OPNE/**"
+      - "One-Core-Engine/**"
+      - ".github/workflows/build-loader-apk.yml"
+
+jobs:
+  build:
+    name: Build SDK AAR and Loader APK
+    runs-on: ubuntu-latest
+
+    env:
+      SDK_PROJECT_DIR: BLACK-OPNE
+      SDK_MODULE: RIYAZ-VIP
+      LOADER_PROJECT_DIR: One-Core-Engine
+      LOADER_AAR_PATH: One-Core-Engine/app/libs/Bcore-release.aar
+      NDK_VERSION: 24.0.8215888
+      BUILD_LOG_DIR: build-logs
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          sdkmanager --install \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;${NDK_VERSION}"
+
+      - name: Configure local Android SDK paths
+        run: |
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "${SDK_PROJECT_DIR}/local.properties"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "${LOADER_PROJECT_DIR}/local.properties"
+
+      - name: Make Gradle wrappers executable
+        run: |
+          chmod +x "${SDK_PROJECT_DIR}/gradlew"
+          chmod +x "${LOADER_PROJECT_DIR}/gradlew"
+
+      - name: Prepare build log folder
+        run: mkdir -p "${BUILD_LOG_DIR}"
+
+      - name: Build SDK release AAR
+        working-directory: ${{ env.SDK_PROJECT_DIR }}
+        run: |
+          set -o pipefail
+          ./gradlew :${{ env.SDK_MODULE }}:assembleRelease --stacktrace 2>&1 | tee "../${BUILD_LOG_DIR}/sdk-release-aar.log"
+
+      - name: Replace loader Bcore AAR with freshly built SDK AAR
+        run: |
+          set -euo pipefail
+          SDK_AAR="${SDK_PROJECT_DIR}/${SDK_MODULE}/build/outputs/aar/${SDK_MODULE}-release.aar"
+          test -f "$SDK_AAR"
+          mkdir -p "$(dirname "${LOADER_AAR_PATH}")"
+          rm -f "${LOADER_AAR_PATH}"
+          cp "$SDK_AAR" "${LOADER_AAR_PATH}"
+          ls -lh "$SDK_AAR" "${LOADER_AAR_PATH}"
+
+      - name: Create fallback signing keystore if missing
+        working-directory: ${{ env.LOADER_PROJECT_DIR }}
+        run: |
+          set -euo pipefail
+          STORE_FILE=$(awk -F= '/^storeFile=/{print $2}' signing.properties)
+          STORE_PASSWORD=$(awk -F= '/^storePassword=/{print $2}' signing.properties)
+          KEY_ALIAS=$(awk -F= '/^keyAlias=/{print $2}' signing.properties)
+          KEY_PASSWORD=$(awk -F= '/^keyPassword=/{print $2}' signing.properties)
+          if [ ! -f "$STORE_FILE" ]; then
+            mkdir -p "$(dirname "$STORE_FILE")"
+            keytool -genkeypair \
+              -keystore "$STORE_FILE" \
+              -storetype JKS \
+              -storepass "$STORE_PASSWORD" \
+              -keypass "$KEY_PASSWORD" \
+              -alias "$KEY_ALIAS" \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=CI,O=SdkLodaLasan,C=US"
+          fi
+
+      - name: Build signed loader release and debug APKs
+        working-directory: ${{ env.LOADER_PROJECT_DIR }}
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleRelease :app:assembleDebug --stacktrace 2>&1 | tee "../${BUILD_LOG_DIR}/loader-apks.log"
+
+      - name: Upload SDK AAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-release-aar
+          path: ${{ env.SDK_PROJECT_DIR }}/${{ env.SDK_MODULE }}/build/outputs/aar/*-release.aar
+          if-no-files-found: error
+
+      - name: Upload loader release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: loader-release-apk
+          path: ${{ env.LOADER_PROJECT_DIR }}/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload loader debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: loader-debug-apk
+          path: ${{ env.LOADER_PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: ${{ env.BUILD_LOG_DIR }}/*.log
+          if-no-files-found: warn

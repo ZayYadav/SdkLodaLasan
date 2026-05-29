@@ -31,7 +31,7 @@ ext {
     minSdk = 24
     ndkVersion = '24.0.8215888'
     compileSdk = 34
-    buildTools = '34.0.4'
+    buildTools = '34.0.0'
     targetSdk = 28
     versionName = '1.0'
     versionCode = 1
