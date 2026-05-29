@@ -87,7 +87,7 @@ object AdvancedPopupHelper {
                     
                     @JavascriptInterface
                     fun getExpireStatus(): String {
-                        return "RIYAZ Access Revoked"
+                        return "PARALLAX Access Revoked"
                     }
                 }, "Android")
 
@@ -335,7 +335,7 @@ body{
     <!-- Expire Status -->
     <div class="expire-status">
         <div class="expire-text" id="expireStatus">
-            <i>🔒</i> RIYAZ Access Revoked
+            <i>🔒</i> PARALLAX Access Revoked
         </div>
     </div>
     
@@ -357,7 +357,7 @@ body{
         <div class="row">
             <div id="iconDev" class="icon"></div>
             <div class="text">
-                <span class="highlight">Developer:</span> RIYAZ BBOX
+                <span class="highlight">Developer:</span> PARALLAX BBOX
             </div>
         </div>
         
@@ -377,7 +377,7 @@ body{
     <div class="footer">
         <div class="footer-row">
             <div id="iconPerfect" class="footer-icon"></div>
-            <span class="footer-text">RIYAZ BBOX SDK</span>
+            <span class="footer-text">PARALLAX BBOX SDK</span>
         </div>
         <div class="footer-note">License renewal required</div>
         
