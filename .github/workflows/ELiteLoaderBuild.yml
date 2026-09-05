@@ -24,7 +24,7 @@ jobs:
 
     env:
       ELITE_SDK_DIR: .elite-sdk
-      ELITE_SDK_REF: bdae93afa908b92eb55ddd3724981e281ef02802
+      ELITE_SDK_REF: 6a463be9fbd0504d9d3f3ad5d63ad2be4120795b
       LOADER_DIR: One-Core-Engine
       LOADER_AAR: One-Core-Engine/app/libs/ParallaxELite-release.aar
       ANDROID_API: '36'
