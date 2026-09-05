@@ -32,6 +32,7 @@ public class BoxApplication extends Application {
     public static final String STATUS_BY = "online";
     private static final String UI_PREFS = "onecore_edge_ui";
     private static final String UI_THEME_KEY = "theme_index";
+    private static final String PARALLAX_ELITE_SDK_KEY = "PARALLAXELITE";
 
     private native String BoxApp();
     public static BoxApplication gApp;
@@ -93,7 +94,7 @@ public class BoxApplication extends Application {
 
         new Thread(() -> {
             try {
-                ELite.activate(BoxApp());
+                ELite.activate(PARALLAX_ELITE_SDK_KEY);
             } catch (Throwable error) {
                 FLog.error("Background SDK activation failed", error);
             }
