@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import top.niunaijun.blackbox.core.env.BEnvironment;
+import com.parallax.ELite;
 
 /** Theme-aware OBB copy flow used by the OneCore Edge Loader. */
 @Obfuscate
@@ -452,7 +452,7 @@ public class FileCopyTask {
     }
 
     public static boolean deleteObbFolder(String packageName) {
-        return deleteDirectory(BEnvironment.getExternalObbDir(packageName));
+        return deleteDirectory(ELite.getExternalObbDir(packageName));
     }
 
     private static boolean deleteDirectory(File dir) {
