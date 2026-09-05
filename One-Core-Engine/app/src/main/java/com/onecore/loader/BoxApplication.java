@@ -94,7 +94,38 @@ public class BoxApplication extends Application {
 
         new Thread(() -> {
             try {
+                FLog.info("ParallaxELite activation requested");
                 ELite.activate(PARALLAX_ELITE_SDK_KEY);
+
+                final long timeoutAt = android.os.SystemClock.elapsedRealtime() + 25_000L;
+                String lastMessage = "";
+                while (android.os.SystemClock.elapsedRealtime() < timeoutAt) {
+                    String message = ELite.getMessage();
+                    if (message != null && !message.trim().isEmpty()
+                            && !"Ready".equalsIgnoreCase(message.trim())) {
+                        lastMessage = message.trim();
+                    }
+
+                    if (ELite.isActivated()) {
+                        FLog.info("ParallaxELite SDK activated successfully");
+                        return;
+                    }
+
+                    try {
+                        Thread.sleep(400L);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        FLog.warning("ParallaxELite activation wait interrupted");
+                        return;
+                    }
+                }
+
+                String finalMessage = ELite.getMessage();
+                if (finalMessage != null && !finalMessage.trim().isEmpty()) {
+                    lastMessage = finalMessage.trim();
+                }
+                FLog.error("ParallaxELite SDK not activated"
+                        + (lastMessage.isEmpty() ? "" : ": " + lastMessage));
             } catch (Throwable error) {
                 FLog.error("Background SDK activation failed", error);
             }
