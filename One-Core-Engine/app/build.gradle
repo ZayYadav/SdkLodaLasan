@@ -304,7 +304,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation files("libs/ParallaxELite-release.aar")
     implementation 'com.android.tools.build:apksig:8.11.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.14.0'
