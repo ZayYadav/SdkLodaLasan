@@ -8,7 +8,7 @@ import static com.onecore.loader.Config.GAME_LIST_PKG;
 import com.Jagdish.tastytoast.TastyToast;
 import java.io.File;
 import java.io.IOException;
-import top.niunaijun.blackbox.BlackBoxCore;
+import com.parallax.ELite;
 import org.lsposed.lsparanoid.Obfuscate;
 
 @Obfuscate
@@ -24,7 +24,7 @@ public class ApkEnv {
     
     public static void LaunchApplication(String packageName) {
         try {
-            BlackBoxCore.get().launchApk(packageName, 0);
+            ELite.launch(packageName, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -32,7 +32,7 @@ public class ApkEnv {
 
     public static void unInstallApp(String packageName) {
         try {
-            BlackBoxCore.get().uninstallPackageAsUser(packageName, 0);
+            ELite.uninstall(packageName, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +40,7 @@ public class ApkEnv {
 
     public static boolean isInstalled(String packageName) {
         try {
-            return BlackBoxCore.get().isInstalled(packageName, 0);
+            return ELite.isInstalled(packageName, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -48,7 +48,7 @@ public class ApkEnv {
     
     public boolean installByPackage(String packageName) {
         try {
-            return BlackBoxCore.get().installPackageAsUser(packageName,0).success;
+            return ELite.installFromInstalledPackage(packageName, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -56,7 +56,7 @@ public class ApkEnv {
     
     public void stopRunningApp(String packageName) {
     	try {
-            BlackBoxCore.get().stopPackage(packageName,0);
+            ELite.stop(packageName, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -80,9 +80,9 @@ public class ApkEnv {
             return null;
         }
 
-        ApplicationInfo applicationInfo = null;
+        ApplicationInfo applicationInfo;
         try {
-         //   applicationInfo = BlackBoxCore.get().getApplicationInfo(packageName);
+            applicationInfo = ELite.getApplicationInfo(packageName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
