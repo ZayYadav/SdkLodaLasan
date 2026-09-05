@@ -26,9 +26,7 @@ import com.topjohnwu.superuser.Shell;
 import java.io.IOException;
 import java.util.Random;
 
-import top.niunaijun.blackbox.BlackBoxCore;
-import top.niunaijun.blackbox.app.configuration.ClientConfiguration;
-import top.niunaijun.blackbox.core.system.api.MetaActivationManager;
+import com.parallax.ELite;
 
 public class BoxApplication extends Application {
     public static final String STATUS_BY = "online";
@@ -67,21 +65,11 @@ public class BoxApplication extends Application {
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(base));
 
         try {
-            FLog.info("Startup: attaching BlackBox core");
-            BlackBoxCore.get().doAttachBaseContext(base, new ClientConfiguration() {
-                @Override
-                public String getHostPackageName() {
-                    return base.getPackageName();
-                }
-
-                @Override
-                public boolean isEnableDaemonService() {
-                    return true;
-                }
-            });
-            FLog.info("Startup: BlackBox attach complete");
+            FLog.info("Startup: attaching ParallaxELite engine");
+            ELite.attach(base);
+            FLog.info("Startup: ParallaxELite attach complete");
         } catch (Throwable error) {
-            FLog.error("BlackBox attach failed", error);
+            FLog.error("ParallaxELite attach failed", error);
         }
     }
 
@@ -96,16 +84,16 @@ public class BoxApplication extends Application {
         IntegrityEnforcer.install(this);
 
         try {
-            FLog.info("Startup: creating BlackBox services");
-            BlackBoxCore.get().doCreate();
-            FLog.info("Startup: BlackBox services ready");
+            FLog.info("Startup: creating ParallaxELite services");
+            ELite.create();
+            FLog.info("Startup: ParallaxELite services ready");
         } catch (Throwable error) {
-            FLog.error("BlackBox service initialization failed", error);
+            FLog.error("ParallaxELite service initialization failed", error);
         }
 
         new Thread(() -> {
             try {
-                MetaActivationManager.activateSdk(BoxApp());
+                ELite.activate(BoxApp());
             } catch (Throwable error) {
                 FLog.error("Background SDK activation failed", error);
             }
