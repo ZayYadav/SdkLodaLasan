@@ -68,3 +68,7 @@
 
 # Warnings from optional logging APIs are not actionable in the release APK.
 -dontwarn org.slf4j.**
+
+# ParallaxELite public facade used by the loader.
+-keep class com.parallax.ELite { *; }
+-keep class com.parallaxelite.** { *; }
