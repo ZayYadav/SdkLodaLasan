@@ -42,7 +42,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import top.niunaijun.blackbox.BlackBoxCore;
 
 import static com.onecore.loader.Config.GAME_LIST_PKG;
 
@@ -53,7 +52,6 @@ public class MainActivity extends Activity {
     private static final int BGMI_INDEX = 0;
 
     public static MainActivity instance;
-    private BlackBoxCore blackBoxCore;
     public static native String FixCrash();
     public String CURRENT_PACKAGE;
 
@@ -93,8 +91,6 @@ public class MainActivity extends Activity {
             return;
         }
 
-        blackBoxCore = BlackBoxCore.get();
-        blackBoxCore.doCreate();
         GameJsonMods();
 
         // BGMI is the only exposed runtime profile. Keep it ready from the first frame so the
