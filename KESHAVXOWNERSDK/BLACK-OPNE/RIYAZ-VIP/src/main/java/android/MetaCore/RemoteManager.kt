@@ -218,11 +218,9 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
                     return@execute
                 }
                 nk.Msg = "Restoring SDK activation"
-                Log.i(TAG, "Restoring SDK activation from durable backup: $reason")
                 activateSdk(savedKey)
             } catch (throwable: Throwable) {
                 nk.Msg = "SDK auto restore failed"
-                Log.e(TAG, "SDK activation auto restore failed", throwable)
             }
         }
     }
