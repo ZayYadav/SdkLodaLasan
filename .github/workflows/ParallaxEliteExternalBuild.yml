@@ -1,0 +1,260 @@
+name: ParallaxElite Signed Loader Bridge
+run-name: "ELite signed loader • ${{ github.event.client_payload.request_id || inputs.request_id || github.run_id }}"
+
+on:
+  repository_dispatch:
+    types:
+      - parallaxelite_loader_build
+  workflow_dispatch:
+    inputs:
+      elite_ref:
+        description: ParallaxElite commit/ref to build
+        required: true
+        type: string
+      loader_ref:
+        description: ParallaxSDK loader source branch/ref
+        required: true
+        default: ParallaxELiteLoader
+        type: string
+      request_id:
+        description: Correlation id used by the ParallaxElite caller
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "parallaxelite-signed-loader-${{ github.event.client_payload.request_id || inputs.request_id || github.run_id }}"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build signed ParallaxELite Loader
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      ANDROID_API: '36'
+      BUILD_TOOLS: '36.0.0'
+      NDK_VERSION: '27.2.12479018'
+      GRADLE_VERSION: '8.13'
+      ELITE_DIR: elite-sdk
+      LOADER_ROOT: loader-source/One-Core-Engine
+      LOADER_AAR: loader-source/One-Core-Engine/app/libs/ParallaxELite-release.aar
+      DIST_DIR: dist
+      BUILD_LOG_DIR: bridge-build-logs
+
+    steps:
+      - name: Resolve and validate request
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_ELITE_REF: ${{ github.event.client_payload.elite_ref }}
+          DISPATCH_LOADER_REF: ${{ github.event.client_payload.loader_ref }}
+          DISPATCH_REQUEST_ID: ${{ github.event.client_payload.request_id }}
+          MANUAL_ELITE_REF: ${{ inputs.elite_ref }}
+          MANUAL_LOADER_REF: ${{ inputs.loader_ref }}
+          MANUAL_REQUEST_ID: ${{ inputs.request_id }}
+        run: |
+          set -euo pipefail
+
+          if [ "${EVENT_NAME}" = "repository_dispatch" ]; then
+            ELITE_REF="${DISPATCH_ELITE_REF}"
+            LOADER_REF="${DISPATCH_LOADER_REF}"
+            REQUEST_ID="${DISPATCH_REQUEST_ID}"
+          else
+            ELITE_REF="${MANUAL_ELITE_REF}"
+            LOADER_REF="${MANUAL_LOADER_REF}"
+            REQUEST_ID="${MANUAL_REQUEST_ID}"
+          fi
+
+          case "${ELITE_REF}" in
+            *[!A-Za-z0-9._/-]*|'') echo "Invalid elite_ref" >&2; exit 1 ;;
+          esac
+          case "${LOADER_REF}" in
+            *[!A-Za-z0-9._/-]*|'') echo "Invalid loader_ref" >&2; exit 1 ;;
+          esac
+          case "${REQUEST_ID}" in
+            *[!A-Za-z0-9._-]*|'') echo "Invalid request_id" >&2; exit 1 ;;
+          esac
+
+          {
+            echo "ELITE_REF=${ELITE_REF}"
+            echo "LOADER_REF=${LOADER_REF}"
+            echo "REQUEST_ID=${REQUEST_ID}"
+          } >> "${GITHUB_ENV}"
+
+      - name: Checkout ParallaxSDK loader source
+        uses: actions/checkout@v4
+        with:
+          repository: ZayYadav/ParallaxSDK
+          ref: ${{ env.LOADER_REF }}
+          path: loader-source
+
+      - name: Checkout requested ParallaxElite SDK
+        uses: actions/checkout@v4
+        with:
+          repository: ZayYadav/ParallaxElite
+          ref: ${{ env.ELITE_REF }}
+          path: ${{ env.ELITE_DIR }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Install Android platform, build tools and NDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install             "platforms;android-${ANDROID_API}"             "build-tools;${BUILD_TOOLS}"             "ndk;${NDK_VERSION}"
+
+      - name: Configure Android SDK paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'sdk.dir=%s\n' "${ANDROID_HOME}" > "${ELITE_DIR}/local.properties"
+          printf 'sdk.dir=%s\n' "${ANDROID_HOME}" > "${LOADER_ROOT}/local.properties"
+          chmod +x "${LOADER_ROOT}/gradlew"
+          mkdir -p "${BUILD_LOG_DIR}" "${DIST_DIR}"
+
+      - name: Build requested ParallaxElite release AAR
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle -p "${ELITE_DIR}" clean assembleRelease             --no-daemon --stacktrace             2>&1 | tee "${BUILD_LOG_DIR}/parallaxelite-aar.log"
+
+      - name: Verify and inject ParallaxElite AAR
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SDK_AAR=$(find "${ELITE_DIR}/build/outputs/aar"             -maxdepth 1 -type f -name '*-release.aar' -print -quit)
+          test -n "${SDK_AAR}"
+          unzip -tq "${SDK_AAR}"
+
+          VERIFY_DIR=$(mktemp -d)
+          unzip -q "${SDK_AAR}" -d "${VERIFY_DIR}"
+          test -f "${VERIFY_DIR}/classes.jar"
+          test -f "${VERIFY_DIR}/jni/arm64-v8a/libParallaxELiteCore.so"
+          test -f "${VERIFY_DIR}/jni/armeabi-v7a/libParallaxELiteCore.so"
+          jar tf "${VERIFY_DIR}/classes.jar" | grep -qx 'com/parallax/ELite.class'
+
+          mkdir -p "$(dirname "${LOADER_AAR}")"
+          rm -f "${LOADER_ROOT}/app/libs/"*.aar
+          cp "${SDK_AAR}" "${LOADER_AAR}"
+          sha256sum "${LOADER_AAR}" | tee "${BUILD_LOG_DIR}/parallaxelite-aar.sha256"
+
+      - name: Load ParallaxSDK production transport and signing credentials
+        shell: bash
+        env:
+          PARALLAX_API_PUBLIC_KEY_B64: ${{ vars.PARALLAX_API_PUBLIC_KEY_B64 }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD_SECRET: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS_SECRET: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD_SECRET: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ONECORE_ALLOWED_SIGNING_SHA256_SECRET: ${{ secrets.ONECORE_ALLOWED_SIGNING_SHA256 }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PARALLAX_API_PUBLIC_KEY_B64:-}" ]; then
+            echo "Missing ParallaxSDK Actions variable PARALLAX_API_PUBLIC_KEY_B64" >&2
+            exit 1
+          fi
+
+          for value in ANDROID_KEYSTORE_BASE64 STORE_PASSWORD_SECRET KEY_ALIAS_SECRET KEY_PASSWORD_SECRET; do
+            if [ -z "${!value:-}" ]; then
+              echo "Missing required ParallaxSDK Actions secret: ${value}" >&2
+              exit 1
+            fi
+          done
+
+          STORE_FILE_REL='keys/elite-loader.jks'
+          mkdir -p "${LOADER_ROOT}/keys"
+          printf '%s' "${ANDROID_KEYSTORE_BASE64}" | base64 --decode             > "${LOADER_ROOT}/${STORE_FILE_REL}"
+
+          keytool -list             -keystore "${LOADER_ROOT}/${STORE_FILE_REL}"             -storepass "${STORE_PASSWORD_SECRET}"             -alias "${KEY_ALIAS_SECRET}" >/dev/null
+
+          {
+            echo "PARALLAX_API_PUBLIC_KEY_B64=${PARALLAX_API_PUBLIC_KEY_B64}"
+            echo "STORE_FILE=${STORE_FILE_REL}"
+            echo "STORE_PASSWORD=${STORE_PASSWORD_SECRET}"
+            echo "KEY_ALIAS=${KEY_ALIAS_SECRET}"
+            echo "KEY_PASSWORD=${KEY_PASSWORD_SECRET}"
+            echo "ONECORE_ALLOWED_SIGNING_SHA256=${ONECORE_ALLOWED_SIGNING_SHA256_SECRET:-}"
+          } >> "${GITHUB_ENV}"
+
+      - name: Build production-signed ParallaxEliteLoader APK
+        working-directory: ${{ env.LOADER_ROOT }}
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace             2>&1 | tee "../../${BUILD_LOG_DIR}/elite-loader-release.log"
+
+      - name: Verify signed APK and Elite engine
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APK=$(find "${LOADER_ROOT}/app/build/outputs/apk/release"             -type f -name '*.apk' -print -quit)
+          test -n "${APK}"
+
+          "${ANDROID_HOME}/build-tools/${BUILD_TOOLS}/apksigner"             verify --verbose --print-certs "${APK}"             | tee "${BUILD_LOG_DIR}/apksigner.txt"
+          "${ANDROID_HOME}/build-tools/${BUILD_TOOLS}/zipalign"             -c -v 4 "${APK}" >/dev/null
+
+          unzip -l "${APK}" | grep -q 'lib/arm64-v8a/libParallaxELiteCore.so'
+
+          DEX_DIR=$(mktemp -d)
+          unzip -qq "${APK}" 'classes*.dex' -d "${DEX_DIR}"
+          : > "${BUILD_LOG_DIR}/dexdump.txt"
+          for dex in "${DEX_DIR}"/classes*.dex; do
+            "${ANDROID_HOME}/build-tools/${BUILD_TOOLS}/dexdump" -d "${dex}"               >> "${BUILD_LOG_DIR}/dexdump.txt"
+          done
+
+          grep -q 'Lcom/parallax/ELite;' "${BUILD_LOG_DIR}/dexdump.txt"
+          if grep -q 'Ltop/niunaijun/blackbox/BlackBoxCore;' "${BUILD_LOG_DIR}/dexdump.txt"; then
+            echo 'Legacy BlackBoxCore API is still packaged.' >&2
+            exit 1
+          fi
+
+          SHORT_REF=$(printf '%s' "${ELITE_REF}" | cut -c1-12)
+          OUT_APK="${DIST_DIR}/ParallaxELiteLoader-${SHORT_REF}.apk"
+          cp "${APK}" "${OUT_APK}"
+
+          {
+            echo "request_id=${REQUEST_ID}"
+            echo "elite_ref=${ELITE_REF}"
+            echo "loader_ref=${LOADER_REF}"
+            echo "bridge_repository=ZayYadav/ParallaxSDK"
+            echo "bridge_run_id=${GITHUB_RUN_ID}"
+            sha256sum "${LOADER_AAR}" "${OUT_APK}"
+          } | tee "${DIST_DIR}/BUILD_INFO.txt"
+
+      - name: Upload signed loader bridge artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "ParallaxELiteLoader-signed-${{ env.REQUEST_ID }}"
+          path: |
+            ${{ env.DIST_DIR }}/*.apk
+            ${{ env.DIST_DIR }}/BUILD_INFO.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload bridge build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "ParallaxELiteLoader-bridge-logs-${{ env.REQUEST_ID }}"
+          path: ${{ env.BUILD_LOG_DIR }}/
+          if-no-files-found: warn
+          retention-days: 14
