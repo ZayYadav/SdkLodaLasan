@@ -14,9 +14,11 @@ import org.lsposed.lsparanoid.Obfuscate;
 @Obfuscate
 public class ApkEnv {
 
-    private static final String PRIMARY_ARTIFACT_NAME = "KESHAVXOWNER.so";
-    private static final String PRIVATE_ARTIFACT_DIRECTORY = "native";
+    private static final String PRIMARY_ARTIFACT_NAME = "libbgmi.so";
+    private static final String PRIVATE_ARTIFACT_DIRECTORY = "loader";
     private static final ApkEnv INSTANCE = new ApkEnv();
+    private static final Object LOADER_LOCK = new Object();
+    private static volatile boolean loaderLoaded = false;
 
     public static ApkEnv getInstance() {
         return INSTANCE;
@@ -93,38 +95,49 @@ public class ApkEnv {
     }
     
     public boolean tryAddLoader(String packageName) {
-        boolean is_online = BoxApplication.STATUS_BY.equals("online");
-
-        ApplicationInfo applicationInfo = getApplicationInfoContainer(packageName);
-        if (applicationInfo == null) {
-            FLog.error("Error, Application Info");
+        if (!GAME_LIST_PKG[0].equals(packageName)) {
+            FLog.warning("Native runtime is only configured for the BGMI profile");
             return false;
         }
 
-        String target = PRIMARY_ARTIFACT_NAME;
-
-        if (packageName.equals(GAME_LIST_PKG[0])) {
-            target = PRIMARY_ARTIFACT_NAME;
-        } else if (packageName.equals(GAME_LIST_PKG[1])) {
-            target = "libpubgm.so";
-        }else if (packageName.equals(GAME_LIST_PKG[2])) {
-            target = "libkorea.so";
-        }else{
-            target = PRIMARY_ARTIFACT_NAME;
-        }
-
-        File loader = new File(
-                is_online
-                        ? new File(BoxApplication.get().getNoBackupFilesDir(), PRIVATE_ARTIFACT_DIRECTORY)
-                        : new File(BoxApplication.get().getApplicationInfo().nativeLibraryDir),
-                target);
-        File loaderDest = new File(applicationInfo.nativeLibraryDir, packageName.equals("com.miraclegames.farlight84") ? "libfarlight.so" : "libAkAudioVisiual.so");
+        boolean isOnline = BoxApplication.STATUS_BY.equals("online");
+        File loader = isOnline
+                ? new File(new File(BoxApplication.get().getFilesDir(), PRIVATE_ARTIFACT_DIRECTORY),
+                        PRIMARY_ARTIFACT_NAME)
+                : new File(BoxApplication.get().getApplicationInfo().nativeLibraryDir,
+                        PRIMARY_ARTIFACT_NAME);
 
         try {
-            return NativeArtifactStore.install(loader, loaderDest);
-        } catch (IOException err) {
-            // Keep artifact paths and names out of logs; callers only need a stable failure signal.
-            FLog.error("Native artifact installation failed", err);
+            File canonicalLoader = loader.getCanonicalFile();
+
+            if (isOnline) {
+                File expectedDirectory = new File(
+                        BoxApplication.get().getFilesDir(),
+                        PRIVATE_ARTIFACT_DIRECTORY).getCanonicalFile();
+
+                File parent = canonicalLoader.getParentFile();
+                if (parent == null
+                        || !expectedDirectory.equals(parent)
+                        || !PRIMARY_ARTIFACT_NAME.equals(canonicalLoader.getName())) {
+                    FLog.error("Native runtime path validation failed");
+                    return false;
+                }
+            }
+
+            if (!canonicalLoader.isFile() || canonicalLoader.length() <= 0) {
+                FLog.error("Native runtime is unavailable");
+                return false;
+            }
+
+            synchronized (LOADER_LOCK) {
+                if (!loaderLoaded) {
+                    System.load(canonicalLoader.getAbsolutePath());
+                    loaderLoaded = true;
+                }
+            }
+            return true;
+        } catch (Throwable err) {
+            FLog.error("Native runtime load failed", err);
             return false;
         }
     }
