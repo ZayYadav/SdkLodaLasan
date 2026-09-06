@@ -57,6 +57,8 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
         private val exe: ExecutorService = Executors.newSingleThreadExecutor()
         private val renewalExecutor = Executors.newSingleThreadScheduledExecutor()
         @Volatile private var renewalTask: ScheduledFuture<*>? = null
+        @Volatile private var restoreAttempted: Boolean = false
+        private const val AUTO_RESTORE_MARKER = "activation_auto_restore_attempted"
 
         @Volatile
         private var instance: RemoteManager? = null
@@ -178,6 +180,7 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
             .putInt("toggle_feature1", data.optInt("feature1", 0))
             .putInt("toggle_feature2", data.optInt("feature2", 0))
             .apply()
+        ActivationBackup.save(context, licenseKey)
         nk.setHidden("online")
         nk.Msg = "SDK activated - secure lease verified"
         renewalTask?.cancel(false)
@@ -196,6 +199,32 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
             }
         }
         showActivationNotificationOnce(context, licenseKey)
+    }
+
+
+    fun restoreActivationFromBackupIfNeeded(reason: String = "startup") {
+        if (restoreAttempted) return
+        restoreAttempted = true
+        exe.execute {
+            try {
+                val context = BlackBoxCore.getContext() ?: return@execute
+                val prefs = context.getSharedPreferences(nk.PREFERENCE_NAME, Context.MODE_PRIVATE)
+                if (prefs.getBoolean("activated", false) && nk.getActivatedSdk()) {
+                    return@execute
+                }
+                val savedKey = ActivationBackup.restore(context)
+                if (savedKey.isNullOrBlank()) {
+                    nk.Msg = "SDK not activated"
+                    return@execute
+                }
+                nk.Msg = "Restoring SDK activation"
+                Log.i(TAG, "Restoring SDK activation from durable backup: $reason")
+                activateSdk(savedKey)
+            } catch (throwable: Throwable) {
+                nk.Msg = "SDK auto restore failed"
+                Log.e(TAG, "SDK activation auto restore failed", throwable)
+            }
+        }
     }
 
     private fun isRetryable(throwable: Throwable): Boolean {
