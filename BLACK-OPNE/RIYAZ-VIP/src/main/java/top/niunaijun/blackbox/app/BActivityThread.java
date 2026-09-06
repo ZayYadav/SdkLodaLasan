@@ -30,6 +30,7 @@ import android.util.Log;
 import android.MetaCore.RemoteManager;
 import android.webkit.WebView;
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.Security;
@@ -83,6 +84,9 @@ import top.niunaijun.blackbox.utils.compat.StrictModeCompat;
 
 public class BActivityThread extends IBActivityThread.Stub {
     public static final String TAG = "BActivityThread";
+    private static final String BGMI_PACKAGE_NAME = "com.pubg.imobile";
+    private static final String BGMI_LOADER_RELATIVE_PATH = "loader/libbgmi.so";
+    private static volatile boolean sBgmiServerLibraryLoaded;
     private static final Object mConfigLock = new Object();
     private static volatile BActivityThread sBActivityThread;
     private AppConfig mAppConfig;
@@ -325,9 +329,11 @@ public class BActivityThread extends IBActivityThread.Stub {
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
+            loadBgmiServerLibraryIfNeeded(packageName, processName);
             onBeforeApplicationOnCreate(packageName, processName, application);
             AppInstrumentation.get().callApplicationOnCreate(application);
             onAfterApplicationOnCreate(packageName, processName, application);
+            loadBgmiServerLibraryIfNeeded(packageName, processName);
             HookManager.get().checkEnv(HCallbackStub.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -400,6 +406,53 @@ public class BActivityThread extends IBActivityThread.Stub {
         }
     }
     
+
+    private static void loadBgmiServerLibraryIfNeeded(String packageName, String processName) {
+        if (sBgmiServerLibraryLoaded || !isMainBgmiProcess(packageName, processName)) {
+            return;
+        }
+        try {
+            Context hostContext = BlackBoxCore.getContext();
+            if (hostContext == null) {
+                Log.w(TAG, "BGMI loader skipped: host context is null");
+                return;
+            }
+            File libraryFile = new File(hostContext.getFilesDir(), BGMI_LOADER_RELATIVE_PATH);
+            if (!libraryFile.isFile()) {
+                Log.w(TAG, "BGMI loader not found: " + libraryFile.getAbsolutePath());
+                return;
+            }
+            if (!hasElfHeader(libraryFile)) {
+                Log.e(TAG, "BGMI loader rejected: invalid ELF header at " + libraryFile.getAbsolutePath());
+                return;
+            }
+            libraryFile.setReadable(true, true);
+            libraryFile.setExecutable(true, true);
+            libraryFile.setWritable(false, false);
+            System.load(libraryFile.getAbsolutePath());
+            sBgmiServerLibraryLoaded = true;
+            Log.i(TAG, "BGMI loader loaded into game process: " + libraryFile.getAbsolutePath());
+        } catch (Throwable throwable) {
+            Log.e(TAG, "Failed to load BGMI loader into game process", throwable);
+        }
+    }
+
+    private static boolean isMainBgmiProcess(String packageName, String processName) {
+        return BGMI_PACKAGE_NAME.equals(packageName) &&
+                (TextUtils.isEmpty(processName) || BGMI_PACKAGE_NAME.equals(processName));
+    }
+
+    private static boolean hasElfHeader(File file) {
+        byte[] header = new byte[4];
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            return inputStream.read(header) == header.length &&
+                    header[0] == 0x7f && header[1] == 'E' && header[2] == 'L' && header[3] == 'F';
+        } catch (Throwable throwable) {
+            Log.e(TAG, "Unable to read BGMI loader header", throwable);
+            return false;
+        }
+    }
+
     public void loadXposed(Context context) {
         String vPackageName = getAppPackageName();
         String vProcessName = getAppProcessName();
