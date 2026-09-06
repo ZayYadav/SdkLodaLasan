@@ -164,8 +164,8 @@ public class LauncherActivity extends Activity {
 
     private void scheduleLaunch(Intent launchIntent, int userId) {
         TextView status = findViewById(R.id.launch_status);
-        mainHandler.postDelayed(() -> animateStatus(status, "VERIFYING APP PROFILE"), 220L);
-        mainHandler.postDelayed(() -> animateStatus(status, "OPENING ISOLATED WORKSPACE"), 520L);
+        mainHandler.postDelayed(() -> animateStatus(status, "Game Opening.."), 220L);
+        mainHandler.postDelayed(() -> animateStatus(status, "Game Opening.."), 520L);
         mainHandler.postDelayed(() -> new Thread(() -> {
             try {
                 BlackBoxCore.getBActivityManager().startActivity(launchIntent, userId);
