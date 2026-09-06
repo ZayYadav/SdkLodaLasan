@@ -32,6 +32,8 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
         val EMPTY_JAR = File(BEnvironment.getCacheDir(), "empty.apk")
 
         private const val MAX_RETRIES = 3
+        private const val SDK_ACTIVATED_NOTICE_PREFIX = "sdk_activation_notice_shown_"
+        private const val NOTIFICATION_ID_SDK_ACTIVATED = 42001
         private val exe: ExecutorService = Executors.newSingleThreadExecutor()
         private val renewalExecutor = Executors.newSingleThreadScheduledExecutor()
         @Volatile private var renewalTask: ScheduledFuture<*>? = null
@@ -195,7 +197,7 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
                 )
             }
         }
-        showNotificationSafe("SDK ACTIVATED", "Secure panel lease active")
+        showActivationNotificationOnce(context, licenseKey)
     }
 
     private fun isRetryable(throwable: Throwable): Boolean {
@@ -267,6 +269,14 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
         sHideRoot = enabled
         nk.Msg = if (enabled) "Root Hide: ENABLED" else "Root Hide: DISABLED"
     }
+    private fun showActivationNotificationOnce(context: Context, licenseKey: String) {
+        val noticeKey = SDK_ACTIVATED_NOTICE_PREFIX + licenseKey.hashCode().toString(16)
+        val prefs = context.getSharedPreferences(nk.PREFERENCE_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(noticeKey, false)) return
+        prefs.edit().putBoolean(noticeKey, true).apply()
+        showNotification(context, "SDK ACTIVATED", "Secure panel lease active", NOTIFICATION_ID_SDK_ACTIVATED)
+    }
+
 
     private fun showNotificationSafe(title: String, message: String) {
         try {
@@ -278,7 +288,7 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
     private val CHANNEL_ID = "meta_sdk_updates"
     private val CHANNEL_NAME = "Meta SDK Updates"
 
-    private fun showNotification(ctx: Context, title: String, msg: String) {
+    private fun showNotification(ctx: Context, title: String, msg: String, notificationId: Int = (System.currentTimeMillis() and 0x7fffffff).toInt()) {
         val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
@@ -294,7 +304,7 @@ class RemoteManager private constructor() : IRemoteManager.Stub() {
             .setContentText(msg)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-        nm.notify((System.currentTimeMillis() and 0x7fffffff).toInt(), notification.build())
+        nm.notify(notificationId, notification.build())
     }
 
     private fun showServerNotification(title: String, msg: String, type: String) {
