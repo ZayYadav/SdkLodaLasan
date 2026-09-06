@@ -225,6 +225,9 @@ class nk {
                 lastIdentityCheckElapsed = 0L
                 if (!getActivatedSdk()) {
                     is_False = false
+                    try {
+                        RemoteManager.getInstance().restoreActivationFromBackupIfNeeded("loadSavedStatus")
+                    } catch (_: Throwable) {}
                 }
             } catch (_: Exception) {
                 is_False = false
