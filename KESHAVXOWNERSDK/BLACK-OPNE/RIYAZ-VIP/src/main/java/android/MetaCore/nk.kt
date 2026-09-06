@@ -189,6 +189,9 @@ class nk {
                 is_False = true
                 if (!getActivatedSdk()) {
                     is_False = false
+                    try {
+                        RemoteManager.getInstance().restoreActivationFromBackupIfNeeded("loadSavedStatus")
+                    } catch (_: Throwable) {}
                 }
             } catch (_: Exception) {}
         }
