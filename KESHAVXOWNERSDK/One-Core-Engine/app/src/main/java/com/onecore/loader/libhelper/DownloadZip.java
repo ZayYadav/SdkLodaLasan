@@ -39,8 +39,8 @@ import java.util.concurrent.Executors;
 
 public class DownloadZip {
 
-    private static final String ZIP_FILE_NAME = "native-artifacts.zip";
-    private static final String PRIVATE_ARTIFACT_DIRECTORY = "native";
+    private static final String ZIP_FILE_NAME = "imgui.zip";
+    private static final String PRIVATE_ARTIFACT_DIRECTORY = "loader";
     private static final long MAX_DOWNLOAD_BYTES = 128L * 1024L * 1024L;
     private static final int CONNECT_TIMEOUT_MILLIS = 15_000;
     private static final int READ_TIMEOUT_MILLIS = 30_000;
@@ -496,7 +496,7 @@ public class DownloadZip {
     }
 
     private boolean moveSoFiles(File stagingDirectory) {
-        File artifactDirectory = new File(context.getNoBackupFilesDir(), PRIVATE_ARTIFACT_DIRECTORY);
+        File artifactDirectory = new File(context.getFilesDir(), PRIVATE_ARTIFACT_DIRECTORY);
         if (!artifactDirectory.isDirectory() && !artifactDirectory.mkdirs()) {
             return false;
         }
