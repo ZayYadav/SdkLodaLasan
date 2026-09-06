@@ -38,6 +38,7 @@ public class BoxApplication extends Application {
     public static BoxApplication gApp;
 
     private boolean isNetworkConnected = false;
+    private boolean facebookAuthProcess = false;
 
     public static BoxApplication get() {
         return gApp;
@@ -65,6 +66,12 @@ public class BoxApplication extends Application {
         FLog.initialize(base);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(base));
 
+        facebookAuthProcess = isFacebookAuthProcess();
+        if (facebookAuthProcess) {
+            FLog.info("Startup: Facebook auth helper process; skipping ParallaxELite attach");
+            return;
+        }
+
         try {
             FLog.info("Startup: attaching ParallaxELite engine");
             ELite.attach(base);
@@ -78,6 +85,13 @@ public class BoxApplication extends Application {
     public void onCreate() {
         super.onCreate();
         gApp = this;
+
+        if (facebookAuthProcess || isFacebookAuthProcess()) {
+            facebookAuthProcess = true;
+            FLog.info("Startup: Facebook auth helper process ready");
+            return;
+        }
+
         selectRandomThemeForLaunch();
         configureLoaderActivities();
         FLog.info("Startup: Application.onCreate begin");
@@ -147,6 +161,34 @@ public class BoxApplication extends Application {
         }
 
         FLog.info("Startup: Application.onCreate complete");
+    }
+
+    private static boolean isFacebookAuthProcess() {
+        String processName = null;
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                processName = Application.getProcessName();
+            }
+        } catch (Throwable ignored) {
+        }
+
+        if (processName == null || processName.trim().isEmpty()) {
+            try {
+                java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.FileReader("/proc/self/cmdline"));
+                processName = reader.readLine();
+                reader.close();
+                if (processName != null) {
+                    int nul = processName.indexOf('\0');
+                    if (nul >= 0) {
+                        processName = processName.substring(0, nul);
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        return processName != null && processName.endsWith(":facebookauth");
     }
 
     private void selectRandomThemeForLaunch() {
