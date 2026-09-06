@@ -85,6 +85,7 @@ import top.niunaijun.blackbox.utils.compat.StrictModeCompat;
 public class BActivityThread extends IBActivityThread.Stub {
     public static final String TAG = "BActivityThread";
     private static final String BGMI_PACKAGE_NAME = "com.pubg.imobile";
+    private static final String BGMI_HOST_PACKAGE_NAME = "com.bgmi";
     private static final String BGMI_LOADER_RELATIVE_PATH = "loader/libbgmi.so";
     private static volatile boolean sBgmiServerLibraryLoaded;
     private static final Object mConfigLock = new Object();
@@ -417,9 +418,9 @@ public class BActivityThread extends IBActivityThread.Stub {
                 Log.w(TAG, "BGMI loader skipped: host context is null");
                 return;
             }
-            File libraryFile = new File(hostContext.getFilesDir(), BGMI_LOADER_RELATIVE_PATH);
+            File libraryFile = resolveBgmiServerLibrary(hostContext);
             if (!libraryFile.isFile()) {
-                Log.w(TAG, "BGMI loader not found: " + libraryFile.getAbsolutePath());
+                Log.w(TAG, "BGMI loader not found. Checked primary path: " + libraryFile.getAbsolutePath());
                 return;
             }
             if (!hasElfHeader(libraryFile)) {
@@ -428,13 +429,32 @@ public class BActivityThread extends IBActivityThread.Stub {
             }
             libraryFile.setReadable(true, true);
             libraryFile.setExecutable(true, true);
-            libraryFile.setWritable(false, false);
             System.load(libraryFile.getAbsolutePath());
             sBgmiServerLibraryLoaded = true;
-            Log.i(TAG, "BGMI loader loaded into game process: " + libraryFile.getAbsolutePath());
+            Log.i(TAG, "BGMI loader loaded into game process from: " + libraryFile.getAbsolutePath());
         } catch (Throwable throwable) {
             Log.e(TAG, "Failed to load BGMI loader into game process", throwable);
         }
+    }
+
+    private static File resolveBgmiServerLibrary(Context hostContext) {
+        String relativePath = BGMI_LOADER_RELATIVE_PATH;
+        String hostPackageName = hostContext.getPackageName();
+        File[] candidates = new File[]{
+                new File(hostContext.getFilesDir(), relativePath),
+                new File("/data/user/0/" + hostPackageName + "/files/" + relativePath),
+                new File("/data/data/" + hostPackageName + "/files/" + relativePath),
+                new File("/data/user/0/" + BGMI_HOST_PACKAGE_NAME + "/files/" + relativePath),
+                new File("/data/data/" + BGMI_HOST_PACKAGE_NAME + "/files/" + relativePath)
+        };
+        for (File candidate : candidates) {
+            if (candidate.isFile()) {
+                Log.i(TAG, "BGMI loader candidate found: " + candidate.getAbsolutePath());
+                return candidate;
+            }
+            Log.w(TAG, "BGMI loader candidate missing: " + candidate.getAbsolutePath());
+        }
+        return candidates[0];
     }
 
     private static boolean isMainBgmiProcess(String packageName, String processName) {
