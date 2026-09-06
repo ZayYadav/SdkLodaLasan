@@ -47,6 +47,7 @@ jobs:
 
     steps:
       - name: Resolve and validate request
+        id: resolve
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -85,18 +86,24 @@ jobs:
             echo "REQUEST_ID=${REQUEST_ID}"
           } >> "${GITHUB_ENV}"
 
+          {
+            echo "elite_ref=${ELITE_REF}"
+            echo "loader_ref=${LOADER_REF}"
+            echo "request_id=${REQUEST_ID}"
+          } >> "${GITHUB_OUTPUT}"
+
       - name: Checkout ParallaxSDK loader source
         uses: actions/checkout@v4
         with:
           repository: ZayYadav/ParallaxSDK
-          ref: ${{ env.LOADER_REF }}
+          ref: ${{ steps.resolve.outputs.loader_ref }}
           path: loader-source
 
       - name: Checkout requested ParallaxElite SDK
         uses: actions/checkout@v4
         with:
           repository: ZayYadav/ParallaxElite
-          ref: ${{ env.ELITE_REF }}
+          ref: ${{ steps.resolve.outputs.elite_ref }}
           path: ${{ env.ELITE_DIR }}
 
       - name: Set up JDK 17
@@ -243,7 +250,7 @@ jobs:
       - name: Upload signed loader bridge artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "ParallaxELiteLoader-signed-${{ env.REQUEST_ID }}"
+          name: "ParallaxELiteLoader-signed-${{ steps.resolve.outputs.request_id }}"
           path: |
             ${{ env.DIST_DIR }}/*.apk
             ${{ env.DIST_DIR }}/BUILD_INFO.txt
@@ -254,7 +261,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: "ParallaxELiteLoader-bridge-logs-${{ env.REQUEST_ID }}"
+          name: "ParallaxELiteLoader-bridge-logs-${{ steps.resolve.outputs.request_id }}"
           path: ${{ env.BUILD_LOG_DIR }}/
           if-no-files-found: warn
           retention-days: 14
